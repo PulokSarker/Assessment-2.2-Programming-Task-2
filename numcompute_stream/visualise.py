@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")          # headless-safe; notebooks override to inline
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
