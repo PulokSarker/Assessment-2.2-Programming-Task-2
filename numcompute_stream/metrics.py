@@ -19,7 +19,6 @@ class StreamingMetric:
 # -------------------------------------------------------------------------
 
 class StreamingAccuracy(StreamingMetric):
-
     def __init__(self, rolling_window=None):
         self.rolling_window = rolling_window
         self._total = 0
@@ -65,6 +64,14 @@ class StreamingAccuracy(StreamingMetric):
 # -------------------------------------------------------------------------
 
 class StreamingConfusionMatrix(StreamingMetric):
+    """
+    Confusion matrix that accumulates over chunks.
+
+    Parameters
+    ----------
+    classes : array-like or None
+        Known class labels. If None, inferred incrementally.
+    """
 
     def __init__(self, classes=None):
         self._classes = list(classes) if classes is not None else []
@@ -104,6 +111,9 @@ class StreamingConfusionMatrix(StreamingMetric):
 # -------------------------------------------------------------------------
 
 class StreamingPrecisionRecallF1(StreamingMetric):
+    """
+    Per-class and macro-averaged precision, recall, F1 accumulated over chunks.
+    """
 
     def __init__(self, classes=None):
         self._cm = StreamingConfusionMatrix(classes)
@@ -146,12 +156,27 @@ class StreamingPrecisionRecallF1(StreamingMetric):
 # -------------------------------------------------------------------------
 
 class StreamingAUC(StreamingMetric):
+    """
+    Accumulates (y_true, y_score) pairs, computes ROC-AUC via trapezoidal rule.
+    Supports binary classification only.
+
+    Parameters
+    ----------
+    rolling_window : int or None
+    """
+
     def __init__(self, rolling_window=None):
         self.rolling_window = rolling_window
         self._y_true = []
         self._y_score = []
 
     def update(self, y_true, y_score):
+        """
+        Parameters
+        ----------
+        y_true  : 1-D binary labels
+        y_score : 1-D probability scores for the positive class
+        """
         y_true = np.asarray(y_true).ravel().tolist()
         y_score = np.asarray(y_score).ravel().tolist()
         self._y_true.extend(y_true)
